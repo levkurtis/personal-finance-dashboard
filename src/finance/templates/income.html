@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Income {{ year or "" }}{% endblock %}
+{% block content %}
+<h1>Income {{ year or "" }}</h1>
+
+{% if config_error %}<p><strong>Local config problem:</strong> {{ config_error }} (using the placeholder goal)</p>{% endif %}
+
+{% if years | length > 1 %}
+<p>Year:
+  {% for y in years %}{% if y == year %}<strong>{{ y }}</strong>{% else %}<a href="/income?year={{ y }}">{{ y }}</a>{% endif %}{% if not loop.last %} · {% endif %}{% endfor %}
+</p>
+{% endif %}
+
+{% if summary is none %}
+  {% if years %}
+  <p>No income data for {{ year }}.</p>
+  {% else %}
+  <p>No income imported yet → <a href="/import">Import</a></p>
+  {% endif %}
+{% else %}
+{% macro figures_cells(f) -%}
+  {% for key in summary.netto_sources %}<td class="num">{{ f.amounts[key] | dkk }}</td>{% endfor %}
+  <td class="num"><strong>{{ f.netto | dkk }}</strong></td>
+  <td class="num">{{ f.brutto | dkk }}</td>
+  <td class="num">{{ f.pension | dkk }}</td>
+  <td class="num"><strong>{{ f.total_pay | dkk }}</strong></td>
+{%- endmacro %}
+<table border="1" cellpadding="4" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Month</th>
+      {% for key in summary.netto_sources %}<th class="num">{{ source_label(key) }}</th>{% endfor %}
+      <th class="num">Netto</th>
+      <th class="num">Brutto</th>
+      <th class="num">Pension</th>
+      <th class="num">Total pay</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in summary.rows %}
+    <tr>
+      <td>{{ row.month | month }}{% if row.is_estimate %} (est.){% endif %}</td>
+      {{ figures_cells(row) }}
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr><th>Total (actual)</th>{{ figures_cells(summary.total_actual) }}</tr>
+    <tr><th>Total (incl. est.)</th>{{ figures_cells(summary.total_all) }}</tr>
+  </tfoot>
+</table>
+
+<p>
+{% if summary.avg_brutto_actual is none %}
+  Average brutto: no actual months yet · Goal {{ summary.goal_ore | dkk }}
+{% else %}
+  Average brutto (actual months, n={{ summary.actual_months }}): {{ summary.avg_brutto_actual | dkk }}
+  · Goal {{ summary.goal_ore | dkk }}
+  · Difference {{ summary.goal_diff_ore | dkk }}
+{% endif %}
+</p>
+<p>Netto excludes Salary (brutto) and Pension. Total pay = Brutto + Pension.</p>
+{% endif %}
+{% endblock %}

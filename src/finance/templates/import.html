@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Import{% endblock %}
+{% block content %}
+<h1>Import</h1>
+
+{% if error %}<p><strong>Import failed:</strong> {{ error }}</p>{% endif %}
+
+<form action="/import" method="post" enctype="multipart/form-data">
+  <p>Upload the "Financial &lt;year&gt;" workbook (.xlsx). Re-uploading replaces that year.</p>
+  <input type="file" name="file" accept=".xlsx">
+  <button type="submit">Import</button>
+</form>
+<p>The file is read in memory and not stored — only the numbers and a SHA-256 of the file are kept.</p>
+
+<h2>Recent imports</h2>
+{% if imports %}
+<table border="1" cellpadding="4" cellspacing="0">
+  <thead><tr><th>Date</th><th>File</th><th>Year</th><th class="num">Months</th><th class="num">Warnings</th><th></th></tr></thead>
+  <tbody>
+    {% for i in imports %}
+    <tr>
+      <td>{{ i.imported_at | replace("T", " ") }}</td>
+      <td>{{ i.filename }}</td>
+      <td>{{ i.year }}</td>
+      <td class="num">{{ i.months }}</td>
+      <td class="num">{{ i.warning_count }}</td>
+      <td><a href="/imports/{{ i.id }}">details</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No imports yet.</p>
+{% endif %}
+{% endblock %}

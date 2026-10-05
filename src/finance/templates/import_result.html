@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Import #{{ info.id }}{% endblock %}
+{% block content %}
+<h1>Import #{{ info.id }}</h1>
+
+{% if identical %}<p><strong>This file is identical to import #{{ info.id }} — nothing changed.</strong></p>{% endif %}
+
+<table cellpadding="4">
+  <tr><th align="left">File</th><td>{{ info.filename }}</td></tr>
+  <tr><th align="left">Imported</th><td>{{ info.imported_at | replace("T", " ") }}</td></tr>
+  <tr><th align="left">Year</th><td>{{ info.year }}</td></tr>
+  <tr><th align="left">Months imported</th><td>{{ info.months }} months</td></tr>
+  <tr><th align="left">Estimate months</th>
+      <td>{% for m in info.estimate_months %}{{ m | month }}{% if not loop.last %}, {% endif %}{% else %}none{% endfor %}</td></tr>
+</table>
+<p><a href="/income?year={{ info.year }}">View income {{ info.year }}</a></p>
+
+<h2>Warnings</h2>
+{% if info.warnings %}
+<ul>{% for w in info.warnings %}<li>{{ w }}</li>{% endfor %}</ul>
+{% else %}<p>None.</p>{% endif %}
+
+<h2>Netto check vs. the sheet's "Total Income (Netto)"</h2>
+{% if info.mismatches %}
+<table border="1" cellpadding="4" cellspacing="0">
+  <thead><tr><th>Month</th><th class="num">Computed</th><th class="num">Sheet</th><th class="num">Difference</th></tr></thead>
+  <tbody>
+    {% for x in info.mismatches %}
+    <tr>
+      <td>{{ x.month | month }}</td>
+      <td class="num">{{ x.computed_ore | dkk }}</td>
+      <td class="num">{{ x.sheet_ore | dkk }}</td>
+      <td class="num">{{ (x.computed_ore - x.sheet_ore) | dkk }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}<p>All months match.</p>{% endif %}
+
+<h2>Changes vs. previous import</h2>
+{% if info.first_for_year %}
+<p>First import for {{ info.year }}.</p>
+{% elif info.changes %}
+<table border="1" cellpadding="4" cellspacing="0">
+  <thead><tr><th>Month</th><th>Source</th><th class="num">Old</th><th class="num">New</th></tr></thead>
+  <tbody>
+    {% for c in info.changes %}
+    <tr>
+      <td>{{ c.month | month }}</td>
+      {% if c.source %}
+      <td>{{ source_label(c.source) }}</td>
+      <td class="num">{{ c.old_ore | dkk }}</td>
+      <td class="num">{{ c.new_ore | dkk }}</td>
+      {% else %}
+      <td colspan="3">{% if c.estimate_to_actual %}estimate → actual{% else %}actual → estimate{% endif %}</td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}<p>No changes.</p>{% endif %}
+{% endblock %}

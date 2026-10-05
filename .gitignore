@@ -1,0 +1,29 @@
+# --- Real financial data: NEVER commit (public repo) ---
+data/
+*.db
+*.sqlite
+*.sqlite3
+*.xlsx
+*.xls
+*.csv
+!demo/**
+
+# --- Private local context (personal paths/email, real header names, real goal) ---
+CLAUDE.local.md
+finance.local.toml
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+.env
+
+# --- OS / editors ---
+.DS_Store
+.vscode/
+.idea/
+
+# --- Private strings checked by .githooks/pre-commit (e.g. personal email) ---
+.private-patterns

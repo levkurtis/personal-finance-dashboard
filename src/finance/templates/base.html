@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Finance{% endblock %}</title>
+  <style>
+    td.num, th.num { text-align: right; white-space: nowrap; }
+  </style>
+</head>
+<body>
+  {% if demo_mode %}<p><strong>DEMO DATA</strong> — generated fake numbers, not real finances.</p>{% endif %}
+  <nav><a href="/income">Income</a> · <a href="/import">Import</a></nav>
+  <hr>
+  {% block content %}{% endblock %}
+</body>
+</html>

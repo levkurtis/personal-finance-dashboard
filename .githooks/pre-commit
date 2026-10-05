@@ -1,0 +1,32 @@
+#!/bin/sh
+# Privacy guard: this repo is public. Refuse commits that would publish real
+# financial data or private strings. Enable with: git config core.hooksPath .githooks
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$staged" ] && exit 0
+
+blocked=$(printf '%s\n' "$staged" | while IFS= read -r path; do
+    case "$path" in
+        (demo/*) ;;
+        (data/*|CLAUDE.local.md|finance.local.toml) printf '%s\n' "$path" ;;
+        (*.xlsx|*.xls|*.csv|*.db|*.sqlite|*.sqlite3) printf '%s\n' "$path" ;;
+    esac
+done)
+
+status=0
+
+if [ -n "$blocked" ]; then
+    echo "pre-commit: refusing to commit private data files (only demo/ may hold spreadsheets/databases):" >&2
+    printf '%s\n' "$blocked" | sed 's/^/  /' >&2
+    status=1
+fi
+
+if [ -s .private-patterns ]; then
+    if git diff --cached -U0 | grep '^+' | grep -q -F -f .private-patterns; then
+        echo "pre-commit: staged changes contain a string listed in .private-patterns." >&2
+        echo "  Run: git diff --cached -U0 | grep -F -f .private-patterns" >&2
+        status=1
+    fi
+fi
+
+exit $status

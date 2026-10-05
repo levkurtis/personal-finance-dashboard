@@ -1,0 +1,15 @@
+# Copy to finance.local.toml (gitignored) and fill in your own values.
+# Personal details live only there, never in the public code.
+
+# Your sheet's header names that differ from the generic defaults in src/finance/sources.py.
+# Keys are source keys; values are one header or a list of headers.
+[income.header_aliases]
+salary_netto = ["Example Corp Salary (Netto)"]
+stock_program = ["Example Corp share plan"]
+tax = ["Example tax settlement"]
+side_income = ["Example marketplace sales"]
+bank_benefits = ["Example Bank bonus"]
+
+# Monthly brutto goal in kroner. Used in real mode only; demo mode always shows a placeholder.
+[goals]
+brutto_monthly_kr = 55000
